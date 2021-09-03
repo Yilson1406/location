@@ -1,0 +1,10 @@
+{
+    "nombre": "Api full",
+    "configDB":{
+        "HOST":"mongodb://localhost:27017/location"
+    },
+    "configToken":{
+        "SEED":"julioverne",
+        "expiration": "24h"
+    }
+}
