@@ -3,7 +3,7 @@ const ruta = express.Router();
 const Usuarios = require('../models/usuarios.model');
 const bcrypt = require('bcrypt');
 const joi = require('@hapi/joi');
-
+const verificartoken = require('../middlewares/auth');
 
 //validar los datos del post
 const schema = joi.object({
@@ -18,7 +18,7 @@ const schema = joi.object({
 
 
 // rutas
-ruta.get('/',(req, res)=>{
+ruta.get('/',verificartoken,(req, res)=>{
     let users = getusers();
     users.then(users=>{
         res.json(users);

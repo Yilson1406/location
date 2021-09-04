@@ -5,6 +5,7 @@ const app = express();
 
 //requerimos las rutas
 const usuarios = require('./routers/usuarios');
+const auth = require('./auth/auth')
 
 // millwared para recibir datos json y por url
 app.use(express.json());
@@ -12,6 +13,7 @@ app.use(express.urlencoded({extended: true}));
 
 //milwared de rutas
 app.use('/api/users', usuarios);
+app.use('/api/auth',auth);
 
 
 
