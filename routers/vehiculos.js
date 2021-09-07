@@ -1,20 +1,9 @@
 const express = require('express');
 const ruta = express.Router();
-const Usuarios = require('../models/usuarios.model');
+const Vehiculos = require('../models/vehiculos.model');
 const bcrypt = require('bcrypt');
 const joi = require('@hapi/joi');
 const verificartoken = require('../middlewares/auth');
-
-//validar los datos del post
-const schema = joi.object({
-    nombres:joi.string().required(),
-    telefono:joi.number().required(),
-    email: joi.string().email({
-        minDomainSegments:2, tlds:{
-            allow: ['com', 'ec', 'net']
-        }
-    }).required()
-})
 
 
 // rutas
@@ -136,13 +125,5 @@ async function deleteuser(placa){
     return usuario;
 }
 
-//validar si existe placa
-// async function validarplaca(placa){
-//      let usuario = await Usuarios.findOne({'placa':placa})
-//     .select({nombres:1, email:1, placa:1, estado:1, telefono:1});
-//     return usuario;
-// }
 
-
-module.exports = ruta
-
+module.exports = ruta;
