@@ -20,7 +20,9 @@ rutas.post('/',(req, res)=>{
                     Email:user.email,
                     Telefono: user.telefono,
                     Placa: user.placa,
-                    Estado:user.estado
+                    Estado:user.estado,
+                    Tipo_Vehiculo:user.tipo_vehiculo,
+                    Color_Vehiculo:user.color_vehiculo
                 }}, config.get('configToken.SEED'), {expiresIn: config.get('configToken.expiration')});
 
             res.json({
@@ -29,7 +31,9 @@ rutas.post('/',(req, res)=>{
                     Email:user.email,
                     Telefono: user.telefono,
                     Placa: user.placa,
-                    Estado:user.estado
+                    Estado:user.estado,
+                    Tipo_Vehiculo:user.tipo_vehiculo,
+                    Color_Vehiculo:user.color_vehiculo
                 },Token:jsontoken
             })
 

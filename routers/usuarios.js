@@ -13,7 +13,8 @@ const schema = joi.object({
         minDomainSegments:2, tlds:{
             allow: ['com', 'ec', 'net']
         }
-    }).required()
+    }).required(),
+    color_vehiculo:joi.string().required()
 })
 
 
@@ -43,7 +44,8 @@ ruta.post('/',verificartoken,(req, res)=>{
     const {error, value} = schema.validate({
         nombres:req.body.nombres,
         email:req.body.email,
-        telefono:req.body.telefono
+        telefono:req.body.telefono,
+        color_vehiculo:req.body.color_vehiculo
     });
     if (!error) {
         let users = adduser(req.body);
@@ -90,10 +92,12 @@ ruta.delete('/:placa',verificartoken,(req, res)=>{
 //agregar usuarios
 async function adduser(body){
     let users = new Usuarios({
-        nombres :body.nombres,
-        email   :body.email,
-        telefono:body.telefono,
-        placa   :body.placa,
+        nombres         :body.nombres,
+        email           :body.email,
+        telefono        :body.telefono,
+        placa           :body.placa,
+        tipo_vehiculo   :body.tipo_vehiculo,
+        color_vehiculo  :body.color_vehiculo,
         password: bcrypt.hashSync(body.password, 10)
     });
     return await users.save();

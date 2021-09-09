@@ -19,15 +19,23 @@ const usuarios = new mongoose.Schema({
         type:Boolean,
         default:true
     },
+    password:{
+        type:String,
+        required:true
+    },
+    tipo_vehiculo:{
+        type:String,
+        default:'Motocicleta'
+
+    },
+    color_vehiculo:{
+        type:String,
+        required:true
+    },
     placa:{
         type:String,
         required:true
     },
-    password:{
-        type:String,
-        required:true
-    }
-
 });
 
 module.exports = mongoose.model('Usuarios', usuarios)
