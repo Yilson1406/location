@@ -1,7 +1,7 @@
 {
     "nombre": "Api full",
     "configDB":{
-        "HOST":"mongodb://localhost:27017/location"
+        "HOST":"mongodb+srv://yilson1406:yilsonmitte123@cluster0.hsqc4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
     },
     "configToken":{
         "SEED":"julioverne",

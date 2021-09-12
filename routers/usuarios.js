@@ -19,7 +19,7 @@ const schema = joi.object({
 
 
 // rutas
-ruta.get('/',verificartoken,(req, res)=>{
+ruta.get('/',(req, res)=>{
     let users = getusers();
     users.then(users=>{
         res.json(users);
