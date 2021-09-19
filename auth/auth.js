@@ -4,7 +4,6 @@ const rutas = express.Router();
 const config = require('config');
 const Usuario = require('../models/usuarios.model');
 const bcrypt = require('bcrypt');
-const ruta = require('../routers/usuarios');
 
 rutas.post('/',(req, res)=>{
 

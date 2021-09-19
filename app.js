@@ -6,8 +6,8 @@ const app = express();
 //requerimos las rutas
 const usuarios = require('./routers/usuarios');
 const auth = require('./auth/auth');
-const locations = require('./routers/locations')
 const password = require('./password/password');
+const admin = require('./routers/admin')
 
 // millwared para recibir datos json y por url
 app.use(express.json());
@@ -27,11 +27,10 @@ app.use((req, res, next) => {
     })
 
 //milwared de rutas
-app.use('/api/users', usuarios);
 app.use('/api/auth',auth);
-app.use('/api/locations',locations);
 app.use('/api/password',password);
-
+app.use('/api/admin/',admin);
+app.use('/api/users', usuarios);
 
 
 
