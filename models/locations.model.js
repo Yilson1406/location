@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+const user = mongoose.Schema;
 //schema de usuarios
 const locations = new mongoose.Schema({
 
@@ -19,6 +20,9 @@ const locations = new mongoose.Schema({
     foto:{
         type:String,
         required:false
+    },
+    user: {
+        type:user.Types.ObjectId, ref:'Usuarios'
     }
 
 });

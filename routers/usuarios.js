@@ -19,7 +19,8 @@ const schema = joi.object({
 
 
 // rutas
-ruta.get('/',(req, res)=>{
+ruta.get('/',verificartoken,(req, res)=>{
+
     let users = getusers();
     users.then(users=>{
         res.json(users);
@@ -29,15 +30,16 @@ ruta.get('/',(req, res)=>{
     
 });
 
-ruta.get('/:placa',verificartoken,(req, res)=>{
+ruta.get('/one',verificartoken,(req, res)=>{
 
-    let userid= getusersplaca (req.params.placa);
+    let userid= getusersid(req.usuario.id);
     userid.then(datos=>{
         res.json(datos)
     }).catch(error=>{
         res.status(400).json(error)
     });
 })
+
 
 ruta.post('/',verificartoken,(req, res)=>{
 
@@ -76,8 +78,9 @@ ruta.put('/:placa',verificartoken,(req, res)=>{
     });
 });
 
-//eliminar usuario
+
 ruta.delete('/:placa',verificartoken,(req, res)=>{
+
     let usuario = deleteuser(req.params.placa);
     usuario.then(datos=>{
         res.json(datos)
@@ -106,20 +109,18 @@ async function adduser(body){
 //consultar todos los usuarios
 async function getusers(){
     let usuario = await Usuarios.find({"estado":true})
-    .select({nombres:1, email:1, placa:1, estado:1, telefono:1});
+    .select({nombres:1, email:1, placa:1, estado:1, telefono:1, tipo_vehiculo:1,color_vehiculo:1});
     return usuario;
 
 }
-
-//consultar todos los usuarios por id
-async function getusersplaca(placa){
-    let usuario = await Usuarios.findOne({'placa':placa})
-    .select({nombres:1, email:1, placa:1, estado:1, telefono:1});
+async function getusersid(id){
+    let usuario = await Usuarios.findOne({'_id':id})
     return usuario;
 }
 
 //update de usuario
 async function updateuser(placa,body){
+    
     let usuario = await Usuarios.findOneAndUpdate({"placa":placa}, {
         $set:{
             nombres :body.nombres,
@@ -139,7 +140,11 @@ async function deleteuser(placa){
     },{new:true});
     return usuario;
 }
-
+//validar password
+async function validarpasswor(id){
+    let usuario = Usuario.findOne({"_id": id});
+    return usuario;
+}
 //validar si existe placa
 // async function validarplaca(placa){
 //      let usuario = await Usuarios.findOne({'placa':placa})

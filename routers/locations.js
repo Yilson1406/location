@@ -1,30 +1,32 @@
 const express = require('express');
 const ruta = express.Router();
-const Locations = require('../models/locations.model');
+const Location = require('../models/locations.model');
 const joi = require('@hapi/joi');
-const verificartoken = require('../middlewares/auth')
+const verificartoken = require('../middlewares/auth');
+const Usuario= require('../models/usuarios.model')
 
 //validar los datos del post
 const schema = joi.object({
-    latitud:joi.string().required(),
-    longitud:joi.number().required(),
-    
+    latitud:joi.number().required(),
+    longitud:joi.number().required()
 })
 
+
 // rutas
-ruta.get('/',verificartoken,(req, res)=>{
+ruta.get('/',(req, res)=>{
+
     let location = getlocation();
-    location.then(locations=>{
-        res.json(locations);
+    location.then(loca=>{
+        res.json(loca);
     }).catch(error=>{
         res.status(400).json(error);
     })
     
 });
 
-ruta.get('/:placa',verificartoken,(req, res)=>{
+ruta.get('/one',verificartoken,(req, res)=>{
 
-    let userid= getusersplaca (req.params.placa);
+    let userid= getusersid(req.usuario.id);
     userid.then(datos=>{
         res.json(datos)
     }).catch(error=>{
@@ -32,17 +34,22 @@ ruta.get('/:placa',verificartoken,(req, res)=>{
     });
 })
 
-ruta.post('/',(req, res)=>{
+
+ruta.post('/:placa',(req, res)=>{
+
+    let user =  Usuario.findOne({'placa':req.params.placa})
+    user.then(datos=>{
+        let id = datos._id
+        // res.json(id)
 
     const {error, value} = schema.validate({
-        longitud:req.body.longitud,
         latitud:req.body.latitud,
-
+        longitud:req.body.longitud,
     });
     if (!error) {
-        let location = addlocation(req.body);
-        location.then(location=>{
-            res.json(location)
+        let location = addlocation(req.body, id);
+        location.then(loca=>{
+            res.json(loca)
         }).catch(error=>{
             res.status(400).json(error)
         })        
@@ -53,34 +60,97 @@ ruta.post('/',(req, res)=>{
     }
 
 
+    }).catch(error=>{
+        console.log(error);
+    })
 
+
+
+});
+
+//ruta para editar user
+ruta.put('/:placa',verificartoken,(req, res)=>{
+
+    let usuario = updateuser(req.params.placa, req.body);
+    usuario.then(user=>{
+        res.json(user)
+    }).catch(error=>{
+        res.status(400).json(error);
+    });
+});
+
+
+ruta.delete('/:placa',verificartoken,(req, res)=>{
+
+    let usuario = deleteuser(req.params.placa);
+    usuario.then(datos=>{
+        res.json(datos)
+    }).catch(error =>{
+        res.status(400).json(error)
+    })
 
 });
 
 // functiones
 
 //agregar usuarios
-async function addlocation(body){
-    let location = new Locations({
-        latitud :body.latitud,
+async function addlocation(body, id){
+    let users = new Location({
         longitud:body.longitud,
-        foto    :body.foto
+        latitud:body.latitud,
+        foto:body.foto,
+        user:id
+
     });
-    return await location.save();
+    return await users.save();
 }
 
 //consultar todos los usuarios
 async function getlocation(){
-    let location = await Locations.find({});
-    return location;
+    let usuario = await Location.find().populate('user')
+
+    return usuario;
 
 }
-
-//consultar todos los usuarios por id
-async function getlocationplaca(placa){
-    let location = await Location.findOne({'placa':placa});
-
-    return location;
+async function getusersid(id){
+    let usuario = await Usuarios.findOne({'_id':id})
+    return usuario;
 }
 
-module.exports = ruta;
+//update de usuario
+async function updateuser(placa,body){
+    
+    let usuario = await Usuarios.findOneAndUpdate({"placa":placa}, {
+        $set:{
+            nombres :body.nombres,
+            email   :body.email,
+            telefono:body.telefono
+        }
+    },{new:true});
+    return usuario;
+}
+
+//eliminar usuario
+async function deleteuser(placa){
+    let usuario = await Usuarios.findOneAndUpdate({"placa":placa}, {
+        $set:{
+            estado:false
+        }
+    },{new:true});
+    return usuario;
+}
+//validar password
+async function validarpasswor(id){
+    let usuario = Usuario.findOne({"_id": id});
+    return usuario;
+}
+//validar si existe placa
+// async function validarplaca(placa){
+//      let usuario = await Usuarios.findOne({'placa':placa})
+//     .select({nombres:1, email:1, placa:1, estado:1, telefono:1});
+//     return usuario;
+// }
+
+
+module.exports = ruta
+

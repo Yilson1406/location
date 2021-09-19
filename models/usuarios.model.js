@@ -36,6 +36,10 @@ const usuarios = new mongoose.Schema({
         type:String,
         required:true
     },
+    rol:{
+        type:String,
+        default:'User'
+    }
 });
 
 module.exports = mongoose.model('Usuarios', usuarios)

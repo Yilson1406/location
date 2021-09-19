@@ -15,27 +15,24 @@ rutas.post('/',(req, res)=>{
             if (!validarpassword) res.status(400).json({Error:'OK',Mensaje:'El usuario o contraseña son incorrectas'});
 
             const jsontoken = jwt.sign({
-                User:{
+                usuario:{
+                    id: user._id,
                     Nombres: user.nombres,
                     Email:user.email,
                     Telefono: user.telefono,
                     Placa: user.placa,
                     Estado:user.estado,
+                    Rol: user.rol,
                     Tipo_Vehiculo:user.tipo_vehiculo,
-                    Color_Vehiculo:user.color_vehiculo
+                    Color_Vehiculo:user.color_vehiculo,
+                    Rol: user.rol
                 }}, config.get('configToken.SEED'), {expiresIn: config.get('configToken.expiration')});
 
-            res.json({
-                User:{
-                    Nombres: user.nombres,
-                    Email:user.email,
-                    Telefono: user.telefono,
-                    Placa: user.placa,
-                    Estado:user.estado,
-                    Tipo_Vehiculo:user.tipo_vehiculo,
-                    Color_Vehiculo:user.color_vehiculo
-                },Token:jsontoken
-            })
+            res.json( 
+                {
+                Token:jsontoken,
+                rol: user.rol
+                })
 
         }else {
               res.status(400).json({

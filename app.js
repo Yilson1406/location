@@ -7,15 +7,30 @@ const app = express();
 const usuarios = require('./routers/usuarios');
 const auth = require('./auth/auth');
 const locations = require('./routers/locations')
+const password = require('./password/password');
 
 // millwared para recibir datos json y por url
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use((req, res, next) => {
+
+    // Dominio que tengan acceso (ej. 'http://example.com')
+       res.setHeader('Access-Control-Allow-Origin', '*');
+    
+    // Metodos de solicitud que deseas permitir
+       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    
+    // Encabecedados que permites (ej. 'X-Requested-With,content-type')
+       res.setHeader('Access-Control-Allow-Headers', '*');
+    
+    next();
+    })
 
 //milwared de rutas
 app.use('/api/users', usuarios);
 app.use('/api/auth',auth);
 app.use('/api/locations',locations);
+app.use('/api/password',password);
 
 
 
