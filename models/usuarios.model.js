@@ -38,7 +38,7 @@ const usuarios = new mongoose.Schema({
     },
     rol:{
         type:String,
-        default:'User'
+        default:'USER'
     }
 });
 
