@@ -46,6 +46,7 @@ ruta.post('/location/:placa',(req, res)=>{
             const {error, value} = schema.validate({
                 latitud:req.body.latitud,
                 longitud:req.body.longitud,
+
             });
             if (!error) {
                 let location = addlocation(req.body, id);
@@ -97,7 +98,7 @@ async function getusersid(id){
 //consultar mis locationes
 
 async function getlocationid(id){   
-    let locations = Location.find({'user':id})
+    let locations = Location.find({'user':id}).sort({fecha_location:-1})
     return locations
 }
 

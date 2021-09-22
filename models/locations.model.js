@@ -13,9 +13,8 @@ const locations = new mongoose.Schema({
         required:true
     },
     fecha_location:{
-        type:Date,
-        default: new Date(),
-        required:true
+        type:String,
+        default: new Date()
     },
     foto:{
         type:String,

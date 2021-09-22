@@ -16,7 +16,10 @@ const schema = joi.object({
             allow: ['com', 'ec', 'net']
         }
     }).required(),
-    color_vehiculo:joi.string().required()
+    color_vehiculo:joi.string().required(),
+    tipo_vehiculo:joi.string().required(),
+    rol:joi.string().required(),
+    placa:joi.string().required()
 })
 
 
@@ -25,23 +28,47 @@ const schema = joi.object({
 //todos los usuarios
 ruta.get('/users',verificartoken,(req, res)=>{
 
-    let location = getusers();
-    location.then(loca=>{
-        res.json(loca);
-    }).catch(error=>{
-        res.status(400).json(error);
-    })
+
+    let Rol = req.usuario.Rol
+    if (Rol === 'ADMIN') {
+        let activo= req.usuario.Estado
+        if (activo) {
+            let location = getusers();
+            location.then(loca=>{
+                res.json(loca);
+            }).catch(error=>{
+                res.status(400).json(error);
+            })                   
+        } else {
+            res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
+        }
+ 
+    } else {
+        res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
+    }
+
     
 });
 
 //agregar nuevo user
 ruta.post('/save-user',verificartoken,(req, res)=>{
 
+
+    let Rol = req.usuario.Rol
+    if (Rol === 'ADMIN') {
+        let activo= req.usuario.Estado
+        if (activo) {
+
     const {error, value} = schema.validate({
         nombres:req.body.nombres,
         email:req.body.email,
         telefono:req.body.telefono,
-        color_vehiculo:req.body.color_vehiculo
+        color_vehiculo:req.body.color_vehiculo,
+        tipo_vehiculo:req.body.tipo_vehiculo,
+        placa:req.body.placa,
+        rol:req.body.rol
+
+
     });
     if (!error) {
         let valplaca = validarplaca(req.body.placa);
@@ -66,24 +93,58 @@ ruta.post('/save-user',verificartoken,(req, res)=>{
             error:error
         })
     }
+} else {
+    res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
+}
+
+} else {
+res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
+}
 });
 
 //elinimar usuario
 ruta.delete('/delete-user/:placa',verificartoken,(req, res)=>{
+    let Rol = req.usuario.Rol
+    if (Rol === 'ADMIN') {
+        let activo= req.usuario.Estado
+        if (activo) {
+            let vaplaca = validarplaca(req.params.placa)
+            vaplaca.then(datos=>{
+                if(datos){
+                    let usuario = deleteuser(req.params.placa);
+                    usuario.then(datos=>{
+                        res.json(datos)
+                    }).catch(error =>{
+                        res.status(400).json(error)
+                    })
+                }else{
+                    res.status(400).json({Mensaje:'La placa no existe'})                                
+                }
 
-    let usuario = deleteuser(req.params.placa);
-    usuario.then(datos=>{
-        res.json(datos)
-    }).catch(error =>{
-        res.status(400).json(error)
-    })
+            }).catch(error=>{
+                res.status(400).json(error)
+            })
+
+        } else {
+            res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
+        }
+
+    } else {
+    res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
+    }
 
 });
 
 // consultar usuario por placa
 ruta.get('/user/:placa',verificartoken,(req, res)=>{
  
-    let pla = validarplaca(req.params.placa)
+    let Rol = req.usuario.Rol
+    if (Rol === 'ADMIN') {
+        let activo= req.usuario.Estado
+        
+        if (activo) {
+
+        let pla = validarplaca(req.params.placa)
         pla.then(datos=>{
             if (datos) {
             let user = userplaca(req.params.placa);
@@ -100,17 +161,43 @@ ruta.get('/user/:placa',verificartoken,(req, res)=>{
         }).catch(error =>{
             console.log(error);
         })
-})
+    } else {
+        res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
+    }
+    
+    } else {
+    res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
+    }
+});
 
 //para editar user
 ruta.put('/update-user/:id',verificartoken,(req, res)=>{
+    let Rol = req.usuario.Rol
+    if (Rol === 'ADMIN') {
+        let activo= req.usuario.Estado
+        if (activo) {
+            let user = validaruser_id(req.params.id);
+            user.then(d=>{
+                if(d){
+                    // res.json(d)
+                    let usuario = updateuser(req.params.id, req.body);
+                    usuario.then(user=>{
+                        res.json(user)
+                    }).catch(error=>{
+                        res.status(400).json(error);
+                    });
+                }else{
+                    res.status(400).json({Mensaje:'Usuario no existe'})                                
+                }
+            })
 
-    let usuario = updateuser(req.params.id, req.body);
-    usuario.then(user=>{
-        res.json(user)
-    }).catch(error=>{
-        res.status(400).json(error);
-    });
+        } else {
+            res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
+        }
+
+    } else {
+    res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
+    }
 });
 //fin de rutas de usuarios
 
@@ -119,48 +206,76 @@ ruta.put('/update-user/:id',verificartoken,(req, res)=>{
 
 // todas las locations
 ruta.get('/locations',verificartoken,(req, res)=>{
+    let Rol = req.usuario.Rol
+    if (Rol === 'ADMIN') {
+        let activo= req.usuario.Estado
+        if (activo) {
     let locations = getlocations();
     locations.then(datos=>{
         res.json(datos)
     }).catch(error=>{
         res.status(400).json(error)
     })
+} else {
+    res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
+}
+
+} else {
+res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
+}
 })
 
 // location por id de usuario
 ruta.get('/location/:id',verificartoken,(req, res)=>{
+    let Rol = req.usuario.Rol
+    if (Rol === 'ADMIN') {
+        let activo= req.usuario.Estado
+        if (activo) {
     let locations = getlocationid(req.params.id);
     locations.then(datos=>{
         res.json(datos)
     }).catch(error=>{
         res.status(400).json(error)
     })
+} else {
+    res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
+}
+
+} else {
+res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
+}
 })
 
 
 //functiones de las locations
+
 //todas las lacaciones
 async function getlocations(){
-    let locations= Location.find({}).populate('user');
+    let locations= await Location.find({}).populate('user');
     return locations; 
 
 }
 //locacion por id de usuario
 async function getlocationid(id){
-    let location = Location.find({'user':id})
+    let location = await Location.find({'user':id})
     return location;
 }
 
 
 // functiones de usuarios
+//validar si usuario existe
+async function validaruser_id(id){
+    let user = await Usuarios.findOne({'_id':id});
+    return user;
+}
 //function para obtener todos los usuarios
 async function getusers(){
-    let users = Usuarios.find({});
+    let users = await Usuarios.find({});
     return users;
 }
 //funcion para obtener user por placa
 async function userplaca(placa){
-    let usuario = Usuarios.findOne({'placa':placa})
+    let usuario = await Usuarios.findOne({'placa':placa})
     return usuario;
 }
 //function eliminar usuario
@@ -181,7 +296,9 @@ async function adduser(body){
         telefono        :body.telefono,
         placa           :body.placa,
         color_vehiculo  :body.color_vehiculo,
-        password: bcrypt.hashSync(body.password, 10)
+        tipo_vehiculo   :body.tipo_vehiculo,
+        password: bcrypt.hashSync(body.password, 10),
+        rol             :body.rol
     });
     return await users.save();
     // return body
@@ -195,20 +312,31 @@ async function validarplaca(placa){
 }
 //update de usuario
 async function updateuser(id,body){
-    
     let usuario = await Usuarios.findOneAndUpdate({"_id":id}, {
         $set:{
             rol:    body.rol,
             nombres :body.nombres,
             email   :body.email,
             telefono:body.telefono,
-            password:bcrypt.hashSync(body.password, 10),
             color_vehiculo:body.color_vehiculo,
             placa:  body.placa
-
         }
     },{new:true});
     return usuario;
+    
+    // let usuario = await Usuarios.findOneAndUpdate({"_id":id}, {
+    //     $set:{
+    //         rol:    body.rol,
+    //         nombres :body.nombres,
+    //         email   :body.email,
+    //         telefono:body.telefono,
+    //         password:bcrypt.hashSync(body.password, 10),
+    //         color_vehiculo:body.color_vehiculo,
+    //         placa:  body.placa
+
+    //     }
+    // },{new:true});
+    // return usuario;
 }
 
 

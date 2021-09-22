@@ -25,7 +25,7 @@ const usuarios = new mongoose.Schema({
     },
     tipo_vehiculo:{
         type:String,
-        default:'Motocicleta'
+        required:true
 
     },
     color_vehiculo:{
@@ -38,7 +38,7 @@ const usuarios = new mongoose.Schema({
     },
     rol:{
         type:String,
-        default:'USER'
+        required:true
     }
 });
 

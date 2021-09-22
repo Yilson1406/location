@@ -30,7 +30,8 @@ rutas.post('/',(req, res)=>{
             res.json( 
                 {
                 Token:jsontoken,
-                rol: user.rol
+                rol: user.rol,
+                estado: user.estado
                 })
 
         }else {
