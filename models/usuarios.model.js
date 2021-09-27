@@ -36,6 +36,10 @@ const usuarios = new mongoose.Schema({
         type:String,
         required:true
     },
+    chasis:{
+        type:Number,
+        required:true
+    },
     rol:{
         type:String,
         required:true

@@ -53,7 +53,6 @@ ruta.get('/users',verificartoken,(req, res)=>{
 //agregar nuevo user
 ruta.post('/save-user',verificartoken,(req, res)=>{
 
-
     let Rol = req.usuario.Rol
     if (Rol === 'ADMIN') {
         let activo= req.usuario.Estado
@@ -74,12 +73,11 @@ ruta.post('/save-user',verificartoken,(req, res)=>{
         let valplaca = validarplaca(req.body.placa);
         valplaca.then(datos=>{
             if (datos) {
-                res.json({Mensaje:'Placa ya existe'})
-
+                res.status(400).json({Error:'ok',Mensaje:'Placa ya existe'})
             }else{
                 let users = adduser(req.body);
-                users.then(user=>{
-                    res.json(user)
+                users.then(()=>{
+                    res.json({Mensaje:'Usuario Creado con Éxito'})
                 }).catch(error=>{
                     res.status(400).json({error:error})
                 })        
@@ -136,7 +134,7 @@ ruta.delete('/delete-user/:placa',verificartoken,(req, res)=>{
 });
 
 // consultar usuario por placa
-ruta.get('/user/:placa',verificartoken,(req, res)=>{
+ruta.get('/user/:id',verificartoken,(req, res)=>{
  
     let Rol = req.usuario.Rol
     if (Rol === 'ADMIN') {
@@ -144,10 +142,10 @@ ruta.get('/user/:placa',verificartoken,(req, res)=>{
         
         if (activo) {
 
-        let pla = validarplaca(req.params.placa)
+        let pla = validaruser_id(req.params.id)
         pla.then(datos=>{
             if (datos) {
-            let user = userplaca(req.params.placa);
+            let user = userplaca(req.params.id);
             user.then(datos=>{
                 res.json(datos)
             }).catch(error=>{
@@ -182,9 +180,9 @@ ruta.put('/update-user/:id',verificartoken,(req, res)=>{
                     // res.json(d)
                     let usuario = updateuser(req.params.id, req.body);
                     usuario.then(user=>{
-                        res.json(user)
+                        res.json({Mensaje:'Usuario Actualizado con Éxito'})
                     }).catch(error=>{
-                        res.status(400).json(error);
+                        res.status(400).json({error:error,Mensaje:'No se pudo Actualizar el Usuario con éxito'});
                     });
                 }else{
                     res.status(400).json({Mensaje:'Usuario no existe'})                                
@@ -200,7 +198,39 @@ ruta.put('/update-user/:id',verificartoken,(req, res)=>{
     }
 });
 //fin de rutas de usuarios
+//recuperar password por placa
+ruta.put('/password',(req, res)=>{
+    // let Rol = req.usuario.Rol
+    // if (Rol === 'ADMIN') {
+    //     let activo= req.usuario.Estado     
+    //     if (activo) {
 
+            let palaca = req.body.placa
+            let valplaca = validarplaca(palaca);
+            valplaca.then(datos=>{
+                if (datos) {
+                    let up= updatepasswprd(palaca);
+                    up.then(datos=>{
+                        res.json({Mensaje:'Password recuperada con éxito'})
+                    }).catch(error=>{
+                        res.status(400).json({error:error})                            
+                    })
+
+                }else{
+                    res.status(400).json({Mensaje:'La placa no existe'})            
+                }
+            }).catch(error=>{
+                res.status(400).json({error:error})
+            })
+    //     } else {
+    //         res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
+    //     }
+
+    // } else {
+    // res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
+    // }
+
+});
 
 //rutas de locations
 
@@ -248,7 +278,16 @@ res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
 
 
 //functiones de las locations
+//update password por placa
+async function updatepasswprd(placa){
+    let usuario = await Usuarios.findOneAndUpdate({"placa":placa}, {
+        $set:{
+            password:bcrypt.hashSync(placa, 10)
+        }
+    },{new:true});
+    return usuario;
 
+}
 //todas las lacaciones
 async function getlocations(){
     let locations= await Location.find({}).populate('user');
@@ -274,8 +313,8 @@ async function getusers(){
     return users;
 }
 //funcion para obtener user por placa
-async function userplaca(placa){
-    let usuario = await Usuarios.findOne({'placa':placa})
+async function userplaca(id){
+    let usuario = await Usuarios.findOne({'_id':id})
     return usuario;
 }
 //function eliminar usuario
@@ -297,15 +336,15 @@ async function adduser(body){
         placa           :body.placa,
         color_vehiculo  :body.color_vehiculo,
         tipo_vehiculo   :body.tipo_vehiculo,
-        password: bcrypt.hashSync(body.password, 10),
-        rol             :body.rol
+        password        :bcrypt.hashSync(body.placa, 10),
+        rol             :body.rol,
+        chasis          :body.chasis
     });
     return await users.save();
     // return body
 }
 //function para poder agregar usuario
-
-//validar placa
+//validar user por placa
 async function validarplaca(placa){
     let user = Usuarios.findOne({'placa':placa})
     return user;
@@ -319,24 +358,15 @@ async function updateuser(id,body){
             email   :body.email,
             telefono:body.telefono,
             color_vehiculo:body.color_vehiculo,
-            placa:  body.placa
+            tipo_vehiculo:body.tipo_vehiculo,
+            placa:  body.placa,
+            estado: body.estado,
+            chasis:body.chasis
+            
         }
     },{new:true});
     return usuario;
-    
-    // let usuario = await Usuarios.findOneAndUpdate({"_id":id}, {
-    //     $set:{
-    //         rol:    body.rol,
-    //         nombres :body.nombres,
-    //         email   :body.email,
-    //         telefono:body.telefono,
-    //         password:bcrypt.hashSync(body.password, 10),
-    //         color_vehiculo:body.color_vehiculo,
-    //         placa:  body.placa
 
-    //     }
-    // },{new:true});
-    // return usuario;
 }
 
 
