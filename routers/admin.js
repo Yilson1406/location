@@ -200,10 +200,10 @@ ruta.put('/update-user/:id',verificartoken,(req, res)=>{
 //fin de rutas de usuarios
 //recuperar password por placa
 ruta.put('/password',(req, res)=>{
-    // let Rol = req.usuario.Rol
-    // if (Rol === 'ADMIN') {
-    //     let activo= req.usuario.Estado     
-    //     if (activo) {
+    let Rol = req.usuario.Rol
+    if (Rol === 'ADMIN') {
+        let activo= req.usuario.Estado     
+        if (activo) {
 
             let palaca = req.body.placa
             let valplaca = validarplaca(palaca);
@@ -222,13 +222,13 @@ ruta.put('/password',(req, res)=>{
             }).catch(error=>{
                 res.status(400).json({error:error})
             })
-    //     } else {
-    //         res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
-    //     }
+        } else {
+            res.status(400).json({Mensaje:'Acceso Denegado, Usuario no Existe'})            
+        }
 
-    // } else {
-    // res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
-    // }
+    } else {
+    res.status(400).json({Mensaje:'Acceso Denegado, Usted no es administrador'})
+    }
 
 });
 
